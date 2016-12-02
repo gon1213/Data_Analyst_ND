@@ -1,0 +1,9 @@
+---
+title: "CA-R"
+
+---
+```{r}
+library(ggplot2)
+CA <- read.csv("CA.csv",header=T,fill=T,row.names = NULL)
+```
+

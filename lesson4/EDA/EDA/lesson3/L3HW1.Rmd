@@ -1,0 +1,86 @@
+---
+title: "L3HW1"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+
+```
+## diamonds
+```{r}
+data(diamonds)
+diamonds
+summary(di)
+names(di)
+
+```
+
+```{r}
+qplot(data=diamonds, x = price, binwidth = 50)+
+  scale_x_continuous(breaks = seq(0,1500,100),limits=c(0,1500))+
+  
+```
+
+```{r}
+a <- subset(diamonds, diamonds$price<500)
+b <- subset(diamonds, diamonds$price<250)
+c <- subset(diamonds, diamonds$price>=15000)
+```
+
+```{r}
+qplot(data=diamonds, x = price, binwidth = 50)+
+  scale_x_continuous(breaks = seq(0,12000,1000),limits=c(0,12000))+
+  facet_wrap(~cut)
+
+options("digits"=10)
+getOption("digits")
+by(diamonds$price,diamonds$cut,summary,digits = max(getOption("digits")))
+
+```
+## not fix y axis
+```{r}
+qplot(data=diamonds, x = price, binwidth = 50)+
+  scale_x_continuous(breaks = seq(0,12000,1000),limits=c(0,12000))+
+  facet_wrap(~cut, scales = "free_y")
+```
+## Adjust the bin width and transform the scale of the x-axis using log10.
+```{r}
+qplot(data=diamonds, x = price/carat)+
+  scale_x_log10()+
+  facet_wrap(~cut, scales = "free_y")
+```
+## save graph
+```{r}
+#You can save images by using the ggsave() command.
+# ggsave() will save the last plot created.
+# For example...
+#                  qplot(x = price, data = diamonds)
+#                  ggsave('priceHistogram.png')
+```
+
+## BOXPLOT BY COLOR
+```{r}
+qplot(x=color, y=price/carat, data = diamonds, geom = "boxplot")
+by(diamonds$price,diamonds$color,summary,digits = max(getOption("digits")))
+D.color<- subset(diamonds$price,diamonds$color=='D')
+IQR(D.color)
+J.color<- subset(diamonds$price,diamonds$color=='J')
+IQR(J.color)
+```
+## freqpolygon for carat
+```{r}
+qplot(x=carat, data = diamonds, geom = "freqpoly", binwidth=0.05)+
+  scale_x_continuous(breaks = seq(0,5,0.1))+
+  coord_cartesian(xlim=c(0,3))
+```
+## tip to read
+```{r}
+#The following command may be helpful for some of the Gapminder Data sets, once it's been converted to csv format: read.csv('data.csv', header = T, row.names = 1, check.names = F). You may want to look at additional function arguments in the help file for the read.table() family for additional tools that can help you read in data.
+
+#If you want to exchange the rows and columns of your dataframe, it will also be useful to know the transpose function, t().
+```
+
+
+

@@ -1,0 +1,104 @@
+---
+title: "L4HW1"
+output: html_document
+---
+# L4HW1
+```{r}
+data("diamonds")
+di <- diamonds
+
+```
+## price vs. x
+```{r}
+ggplot(data = di, aes(x = x, y = price))+
+  geom_point()
+```
+## Correlations
+
+```{r}
+options("digits"=2)
+with(di, cor.test(price,x))
+with(di, cor.test(price,y))
+with(di, cor.test(price,z))
+
+```
+## price vs. depth
+```{r}
+ggplot(data = di, aes(x = depth, y = price))+
+  geom_point()
+```
+## Adjustments - price vs. depth
+```{r}
+ggplot(data = di, aes(x = depth, y = price))+
+  geom_point(alpha = 1/100, position = position_jitter(h=0))+
+  scale_x_continuous(breaks = seq(40,80,2))
+```
+## Correlation - price and depth
+```{r}
+with(di,cor.test(price, depth))
+```
+## price vs. carat
+```{r}
+# Create a scatterplot of price vs carat
+# and omit the top 1% of price and carat
+# values.
+
+ggplot(data = di, aes(x = carat, y = price))+
+  geom_point()+
+  xlim(0, quantile(di$carat, 0.99))+
+  ylim(0, quantile(di$price, 0.99))
+  
+```
+## price vs. volume
+
+```{r}
+di$volume <- di$x*di$y*di$z
+ggplot(data = di, aes(x = volume, y = price))+
+  geom_point()
+
+summary(di$volume == 0)
+```
+## Correlations on Subsets
+```{r}
+with(subset(di, 0<di$volume& di$volume<=800), cor.test(price, volume))
+```
+## Adjustments - price vs. volume
+```{r}
+ggplot(subset(di, 0<di$volume& di$volume<=800), aes(x = volume, y = price))+
+  geom_point(alpha= 1/100, position = position_jitter(h=0))+
+  geom_smooth(method = lm)
+```
+## Mean Price by Clarity
+```{r}
+diamondsByClarity <- diamonds%>%
+  group_by(clarity)%>%
+  summarise(mean_price = mean(price),
+          median_price = median(price),
+          min_price = min(price),
+          max_price = max(price),
+          n = n())
+head(diamondsByClarity,10)
+```
+## Bar Charts of Mean Price
+```{r}
+diamonds_by_clarity <- group_by(diamonds, clarity)
+diamonds_mp_by_clarity <- summarise(diamonds_by_clarity, mean_price = mean(price))
+
+diamonds_by_color <- group_by(diamonds, color)
+diamonds_mp_by_color <- summarise(diamonds_by_color, mean_price = mean(price))
+
+diamonds_by_cut <- group_by(diamonds, cut)
+diamonds_mp_by_cut <- summarise(diamonds_by_cut, mean_price = mean(price))
+
+b1 <- ggplot(data = diamonds_mp_by_clarity, aes(x = clarity, y = mean_price))+
+  geom_bar(stat = "identity")
+
+b2 <- ggplot(data = diamonds_mp_by_color, aes(x = color, y = mean_price))+
+  geom_bar(stat = "identity")
+
+b3 <- ggplot(data = diamonds_mp_by_cut, aes(x = cut, y = mean_price))+
+  geom_bar(stat = "identity")
+
+grid.arrange(b1,b2,b3,ncol=3)
+```
+

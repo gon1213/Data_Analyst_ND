@@ -1,0 +1,219 @@
+# lesson 3 
+
+## Histogram of User's Birthdays
+
+```{r echo = FALSE}
+
+library(ggplot2)
+pf <- read.csv('pseudo_facebook.tsv', sep = '\t')
+```
+## first way
+```{r}
+
+names(pf)
+
+
+
+
+
+```
+
+## second way
+```{r}
+
+ggplot(aes(x = dob_day), data = pf)+
+  geom_histogram(binwidth = 1)+
+  scale_x_continuous(breaks = 1:31)+
+  theme_set(theme_minimal(24))+
+  facet_wrap(~dob_month, ncol = 3)
+  
+
+```
+
+facet_wrap(~dob_month, ncol = 3)
+or using facet_grid(~dob_month)
+
+```{r}
+ggplot(data = subset(pf, !is.na(gender)), aes(x = friend_count))+
+  geom_histogram()+
+  scale_x_continuous(limits = c(0, 1000), breaks = seq(0,1000,50))+
+  facet_wrap(~gender)
+  
+qplot( x=friend_count, data = subset(pf, !is.na(gender)), xlim = c(0,1000))+
+  facet_grid(.~gender )
+
+qplot(x=friend_count, data = na.omit(pf), binwidth = 25)+
+  scale_x_continuous(limits = c(0,1000), breaks = seq(0,1000,50))
+```
+```{r}
+table(pf$gender)
+by(pf$friend_count,pf$gender, summary)
+
+
+```
+
+```{r}
+qplot(x=tenure/365, data = pf, 
+      xlab = "Number of years using Facebook",
+      ylab = "Number of users in sample",
+      binwidth =0.25,
+      color = I('black'), fill = I('#099dd9'))+
+  scale_x_continuous(breaks=seq(1,7,1), limits = c(0,7))
+```
+
+```{r}
+ggplot(aes(x = tenure), data = pf) + 
+   geom_histogram(binwidth = 30, color = 'black', fill = '#099DD9')
+```
+```{r}
+ggplot(aes(x = tenure/365), data = pf) + 
+   geom_histogram(binwidth = .25, color = 'black', fill = '#F79420')
+```
+```{r}
+ggplot(aes(x = tenure / 365), data = pf) + 
+  geom_histogram(color = 'black', fill = '#F79420') + 
+  scale_x_continuous(breaks = seq(1, 7, 1), limits = c(0, 7)) + 
+  xlab('Number of years using Facebook') + 
+  ylab('Number of users in sample')
+```
+```{r}
+ggplot(aes(x=age),data = pf)+
+  geom_histogram(binwidth = 1, color = "black", fill = "blue" )+
+  scale_x_continuous(breaks = seq(0,120,10), limits = c(10,120))
+```
+
+par(mfrow=c(2,2))
+plot(wt,mpg, main="Scatterplot of wt vs. mpg")
+plot(wt,disp, main="Scatterplot of wt vs disp")
+hist(wt, main="Histogram of wt")
+boxplot(wt, main="Boxplot of wt")
+
+```{r}
+p1 <- ggplot(aes(x=friend_count), data = pf)+
+  geom_histogram()
+
+  
+p2 <- p1+scale_x_log10()
+
+p3 <- p1+scale_x_sqrt()
+
+# arrange plots in grid
+grid.arrange(p1, p2, p3, ncol=1)
+```
+
+```{r}
+p4 <- qplot(x=friend_count, data = pf)
+p5 <- qplot(x=log10(friend_count), data = pf)
+p6 <- qplot(x=sqrt(friend_count), data = pf)
+
+p7 <- qplot(x=friend_count, data = pf)+
+  scale_x_log10()
+
+
+grid.arrange(p4, p5, p6, ncol=1)
+```
+```{r}
+grid.arrange(p2, p5, ncol=2)
+```
+
+## Frequency Polygons
+```{r}
+FreqPoly0 <- qplot(x=friend_count, 
+      data = subset(pf, !is.na(gender)),
+      xlab = 'Friend Count',
+      ylab = 'Percentage of users with that friend count',
+      binwidth=10, geom = 'freqpoly', color = gender)+
+  scale_x_continuous(limits = c(0,1000), breaks = seq(0,1000,50))
+
+FreqPoly1 <- qplot(x=friend_count, y = ..count../sum(..count..), 
+      data = subset(pf, !is.na(gender)),
+      xlab = 'Friend Count',
+      ylab = 'Percentage of users with that friend count',
+      binwidth=10, geom = 'freqpoly', color = gender)+
+  scale_x_continuous(limits = c(0,1000), breaks = seq(0,1000,50))
+
+FreqPoly2 <- ggplot(aes(x = friend_count, y = ..count../sum(..count..)),
+                    data = subset(pf, !is.na(gender))) + 
+  geom_freqpoly(aes(color = gender), binwidth=10) + 
+  scale_x_continuous(limits = c(0, 1000), breaks = seq(0, 1000, 50)) + 
+  xlab('Friend Count') + 
+  ylab('Percentage of users with that friend count')
+
+grid.arrange(FreqPoly0,FreqPoly1, FreqPoly2, ncol=3)
+```
+
+```{r}
+ ggplot(aes(x = likes, y = ..count../sum(..count..)),
+                    data = subset(pf, !is.na(gender))) + 
+  geom_freqpoly(aes(color = gender), binwidth=10) + 
+  scale_x_continuous(limits = c(0, 1000), breaks = seq(0, 1000, 50)) + 
+  xlab('likes Count') + 
+  ylab('Percentage of users with that likes')
+
+
+```
+```{r}
+ggplot(aes(x = www_likes), data = subset(pf, !is.na(gender))) + 
+  geom_freqpoly(aes(color = gender)) + 
+  scale_x_log10()
+```
+```{r}
+by(pf$www_likes,pf$gender,sum)
+```
+
+## boxplot
+```{r}
+box1 <- qplot(x=gender,
+      y=friend_count,
+      data = subset(pf, !is.na(gender)),
+      xlab = 'Friend Count',
+      ylab = 'Percentage of users with that friend count',
+      geom = 'boxplot')+
+  scale_y_continuous(limits = c(0,1000))
+
+box2 <- qplot(x=gender,
+      y=friend_count,
+      data = subset(pf, !is.na(gender)),
+      xlab = 'Friend Count',
+      ylab = 'Percentage of users with that friend count',
+      geom = 'boxplot')+
+  coord_cartesian(ylim=c(0,1000))
+
+grid.arrange(box1,box2,ncol=2)
+
+```
+box 2 is better , box1 may dis count some data that out of lim
+
+```{r}
+box2 <- qplot(x=gender,
+      y=friend_count,
+      data = subset(pf, !is.na(gender)),
+      xlab = 'Friend Count',
+      ylab = 'Percentage of users with that friend count',
+      geom = 'boxplot')+
+  coord_cartesian(ylim=c(0,250))
+
+by(pf$friend_count,pf$gender,summary)
+```
+
+## friendships_initiated
+```{r}
+fi <- ggplot(data=subset(pf, !is.na(gender)), aes(x=gender,y=friendships_initiated))+
+  geom_boxplot(outlier.colour="red", outlier.shape=8, outlier.size=4)+
+  coord_flip()+
+  coord_cartesian(ylim=c(0,300))
+fi
+by(pf$friendships_initiated,pf$gender,summary)
+```
+## Getting Logical
+```{r}
+summary(pf$mobile_likes)
+summary(pf$mobile_likes>0)
+pf$moblie_check_in <- NA 
+pf$moblie_check_in <- ifelse(pf$mobile_likes>0,1,0)
+pf$moblie_check_in <- factor(pf$moblie_check_in)
+
+sum(pf$moblie_check_in==1)/length(pf$moblie_check_in)*100
+```
+
+
